@@ -90,7 +90,16 @@ Write a query that gets the contact first name, contact last name, phone number,
 ```python
 # Replace None with appropriate SQL code
 q1 = """
-None
+SELECT
+    contactFirstName,
+    contactLastName,
+    phone,
+    addressLine1,
+    creditLimit
+FROM customers
+WHERE
+    state == 'CA'
+    AND creditLimit > 25000
 ;
 """
 
