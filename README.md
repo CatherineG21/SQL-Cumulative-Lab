@@ -137,7 +137,15 @@ We are looking for customers with names like `"Australian Collectors, Co."` or `
 ```python
 # Replace None with appropriate SQL code
 q2 = """
-None
+SELECT
+    customerName,
+    state,
+    country
+FROM
+    customers
+WHERE
+    customerName LIKE '%Collect%'
+    AND country != 'USA'
 ;
 """
 
@@ -175,7 +183,15 @@ Here we'll only display the first 10 results.
 ```python
 # Replace None with appropriate SQL code
 q3 = """
-None
+SELECT
+    addressLine1,
+    addressLine2,
+    city,
+    state,
+    postalCode,
+    country
+FROM customers
+WHERE state IS NOT NULL
 ;
 """
 
@@ -217,7 +233,12 @@ The two fields selected should be `state` and `average_credit_limit`, which is t
 ```python
 # Replace None with appropriate SQL code
 q4 = """
-None
+SELECT
+    state,
+    AVG(creditLimit) AS average_credit_limit
+FROM customers
+WHERE country = 'USA'
+GROUP BY state
 ;
 """
 
@@ -259,7 +280,14 @@ Write a query that uses `JOIN` statements to get the customer name, order number
 ```python
 # Replace None with appropriate SQL code
 q5 = """
-None
+SELECT
+    c.customerName,
+    o.orderNumber,
+    o.status
+FROM
+    customers c
+    JOIN orders o
+        ON c.customerNumber = o.customerNumber
 ;
 """
 q5_result = pd.read_sql(q5, conn)
@@ -296,7 +324,17 @@ The three columns selected should be `customerName`, `customerNumber` and `total
 ```python
 # Replace None with appropriate SQL code
 q6 = """
-None
+SELECT
+    c.customerName,
+    c.customerNumber,
+    SUM(p.amount) AS total_payment_amount
+FROM
+    customers c
+    JOIN payments p
+        ON c.customerNumber = p.customerNumber
+GROUP BY c.customerName
+ORDER BY total_payment_amount DESC
+LIMIT 10
 ;
 """
 q6_result = pd.read_sql(q6, conn)
@@ -335,7 +373,23 @@ The five columns selected should be `customerName`, `customerNumber`, `productNa
 ```python
 # Replace None with approprite SQL code
 q7 = """
-None
+SELECT
+    c.customerName,
+    c.customerNumber,
+    p.productName,
+    p.productCode,
+    SUM(od.quantityOrdered) AS total_ordered
+FROM
+    customers c
+        JOIN orders o
+            ON c.customerNumber = o.customerNumber
+        JOIN orderdetails od
+            ON od.orderNumber = o.orderNumber
+        JOIN products p
+            ON p.productCode = od.productCode
+GROUP BY c.customerNumber, od.productCode
+HAVING SUM(od.quantityOrdered) >= 10
+ORDER BY total_ordered
 ;
 """
 q7_result = pd.read_sql(q7, conn)
@@ -372,8 +426,18 @@ Finally, get the last name, first name, employee number, and office code for emp
 ```python
 # Replace None with approprite SQL code
 q8 = """
-None
-;
+SELECT
+    lastName,
+    firstName,
+    employeeNumber,
+    officeCode
+FROM employees
+WHERE officeCode IN (
+    SELECT officeCode
+    FROM employees
+    GROUP BY officeCode
+    HAVING COUNT(employeeNumber) < 5
+);
 """
 q8_result = pd.read_sql(q8, conn)
 q8_result
